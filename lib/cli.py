@@ -212,7 +212,29 @@ def add_user(session):
         session.rollback()  # Rollback on error
         print(f"An error occurred while adding user: {e}")
         return None  
+def get_user_data(session):
+    view_users(session)
+    user_id = input("Enter userID:")
+    try:
+        user = session.query(User).filter(User.user_id == user_id).first()
+        if not user:
+            print(f"User with ID {user_id} not found.")  # Print directly
+            return False
 
+        print(f"User: {user.name} ({user.email})")  # Print user info
+
+        for project in user.projects:
+            print(f"  Project: {project.name} ({project.status})")
+            for task in project.tasks:
+                due_date_str = str(task.due_date) if task.due_date else "No Due Date" # Handle None
+                print(f"    - {task.title} (Due: {due_date_str}, Status: {task.status})")
+
+        return True  # User found and printed
+
+    except Exception as e:
+        print(f"Error retrieving user: {e}")
+        session.rollback()
+        return False
 
 if __name__ == "__main__": 
     try: 
@@ -230,14 +252,15 @@ if __name__ == "__main__":
                 print("9. Delete Project")
                 print("10. Update Task Status")
                 print("11. Exit")
-                available_choices = range(3, 12)
+                available_choices = [3,4,5,6,7,8,9,10,11]
 
             else:  # Logged-out menu
                 print("1. Create User")
                 print("2. Login")
-                print("12. View Users")
+                print("12. Get user info by id")
+                print("13.View all users")
                 print("11. Exit")
-                available_choices = [1, 2, 12, 11]
+                available_choices = [1, 2, 12,13, 11]
 
             try:
                 choice = int(input("Enter choice: "))
@@ -270,7 +293,10 @@ if __name__ == "__main__":
             elif choice == 10 and current_user:
                 update_task_status(session)
             elif choice == 12 and not current_user:
+                get_user_data(session)
+            elif choice == 13 and not current_user:
                 view_users(session)
+            
             elif choice == 11:
                 print("Exiting Task Manager CLI...")
                 break
