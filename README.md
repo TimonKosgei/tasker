@@ -45,23 +45,23 @@ This project is a command-line interface (CLI) application for managing tasks. I
 The CLI application is accessed through the `cli.py` script.  Run it using: `python cli.py`
 
 This will start the interactive menu. Here's how to use it:
-
-**Logged-out options:**
-
-1. Create User
-2. Login
-12. Get user info by id
-13. View all users
+**Logged in options**
+1. View Projects
+2. View Tasks
+3. Create Project
+4. Create Task
+5. Update Project Status
+6. Update Task Status
+7. Get project info by id
+8. Delete Project
+9. Delete Task
+10. Logout
 11. Exit
 
-**Logged-in options:**
-
-3. Logout
-4. Create Project
-5. Create Task
-6. View Projects
-7. View Tasks
-8. Update Project Status
-9. Delete Project
-10. Update Task Status
+**Logged out options**
+1. Create User
+2. Login
+3. Get user info by id
+4. View all users
+5. Delete user
 11. Exit

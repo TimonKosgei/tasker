@@ -89,7 +89,7 @@ def view_tasks(session):
                 for project in user.projects:  
                     for task in project.tasks:  # Iterate through each project's tasks
                         print(f"Project: {project.name}, Task ID: {task.task_id}, Title: {task.title}, Description: {task.description}, Due Date: {task.due_date}, Status: {task.status}")
-                        return True
+                        
             elif not user.projects:
                 print(f"User {current_user.name} doesn't have any task!!")
                 return None
@@ -236,31 +236,100 @@ def get_user_data(session):
         session.rollback()
         return False
 
-if __name__ == "__main__": 
-    try: 
+def delete_user(session):
+    try:
+        view_users(session)
+        user_id = input("Enter user Id:")
+        user = session.query(User).filter(User.user_id == user_id).first()
+        if not user:
+            print(f"User with ID {user_id} not found.")
+            return False
+
+        session.delete(user) # cascade delete will take care of projects and tasks
+        session.commit()
+        print(f"User with ID {user_id} and associated data deleted successfully.")
+        return True
+
+    except Exception as e:
+        session.rollback()  # Rollback on error
+        print(f"Error deleting user: {e}")
+        return False
+
+def get_project_by_id(session):
+    try:
+        view_projects(session)
+        project_id = input("Enter project id:")
+        project = session.query(Project).filter(Project.project_id == project_id).first()
+
+        if not project:
+            print(f"Project with ID {project_id} not found.")
+            return False
+
+        print(f"Project: {project.name} ({project.status})")
+        print("Tasks")
+
+        for task in project.tasks:
+            due_date_str = str(task.due_date) if task.due_date else "No Due Date"
+            print(f"    - {task.title} (Due: {due_date_str}, Status: {task.status})")
+
+        return True  # Project found and printed
+
+    except Exception as e:
+        print(f"Error retrieving project: {e}")
+        session.rollback()
+        return False
+
+def delete_task(session):
+    try:
+        view_tasks(session)
+        task_id  = input("Enter taskId:")
+        task = session.query(Task).filter(Task.task_id == task_id).first()
+
+
+        if not task:
+            print(f"Task with ID {task_id} not found.")
+            return False
+
+        session.delete(task)
+        session.commit()
+        print(f"Task with ID {task_id} deleted successfully.")
+        return True
+
+    except Exception as e:
+        session.rollback()
+        print(f"Error deleting task: {e}")
+        return False
+
+if __name__ == "__main__":
+    try:
         session = Session()
         while True:
             print("\nTask Manager CLI")
 
             if current_user:  # Logged-in menu
-                print("3. Logout")
-                print("4. Create Project")
-                print("5. Create Task")
-                print("6. View Projects")
-                print("7. View Tasks")
-                print("8. Update Project Status")
-                print("9. Delete Project")
-                print("10. Update Task Status")
+                print("1. View Projects")
+                print("2. View Tasks")
+                print("3. Create Project")
+                print("4. Create Task")
+                print("5. Update Project Status")
+                print("6. Update Task Status")
+                print("7. Get project info by id")  # Added this line
+                print("8. Delete Project")
+                print("9. Delete Task") # Added this line
+                print("10. Logout")
                 print("11. Exit")
-                available_choices = [3,4,5,6,7,8,9,10,11]
+
+                available_choices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]  # Updated choices
 
             else:  # Logged-out menu
                 print("1. Create User")
                 print("2. Login")
-                print("12. Get user info by id")
-                print("13.View all users")
+                print("3. Get user info by id")  # Added this line
+                print("4. View all users")  # Added this line
+                print("5. Delete user")  # Added this line
                 print("11. Exit")
-                available_choices = [1, 2, 12,13, 11]
+
+                available_choices = [1, 2, 3, 4, 5, 11]  # Updated choices
 
             try:
                 choice = int(input("Enter choice: "))
@@ -273,39 +342,48 @@ if __name__ == "__main__":
                 continue
 
             if choice == 1:
-                add_user(session)
+                if current_user:
+                    view_projects(session)
+                else:
+                    add_user(session) # create user
             elif choice == 2:
-                login(session)
-            elif choice == 3 and current_user:
-                logout()
-            elif choice == 4 and current_user:
-                add_project(session)
+                if current_user:
+                    view_tasks(session)
+                else:
+                    login(session) # login
+            elif choice == 3:
+                if current_user:
+                    add_project(session)
+                else:
+                    get_user_data(session) #get user data
+            elif choice == 4:
+                if current_user:
+                    add_task(session)
+                else:
+                    view_users(session) # view all users
             elif choice == 5 and current_user:
-                add_task(session)
-            elif choice == 6 and current_user:
-                view_projects(session)
-            elif choice == 7 and current_user:
-                view_tasks(session )
-            elif choice == 8 and current_user:
                 update_project_status(session)
-            elif choice == 9 and current_user:
-                delete_project(session)
-            elif choice == 10 and current_user:
+            elif choice == 6 and current_user:
                 update_task_status(session)
-            elif choice == 12 and not current_user:
+            elif choice == 7 and current_user:  # Added this case
+                get_project_by_id(session)
+            elif choice == 8 and current_user:
+                delete_project(session)
+            elif choice == 9 and current_user: # Added this case
+                delete_task(session)
+            elif choice == 10 and current_user:
+                logout()
+            elif choice == 3 and not current_user: # added this case
                 get_user_data(session)
-            elif choice == 13 and not current_user:
+            elif choice == 4 and not current_user: # added this case
                 view_users(session)
-            
+            elif choice == 5 and not current_user: # added this case
+                delete_user(session)
             elif choice == 11:
                 print("Exiting Task Manager CLI...")
                 break
 
-
-
     except Exception as e:
-        print(f"A general occured: {e}")
+        print(f"A general error occurred: {e}")
     finally:
         session.close()
-
-    

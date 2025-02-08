@@ -14,7 +14,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
 
     # Relationship to Project (one-to-many)
-    projects = relationship("Project", back_populates="user")
+    projects = relationship("Project", back_populates="user", cascade="all,delete")
 
     @validates('email')
     def validate_email(self, key, email):
