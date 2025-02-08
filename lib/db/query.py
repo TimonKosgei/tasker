@@ -2,11 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime # For date objects
 
-# Import your models (assuming they're in a file named models.py)
-from models import User, Project, Task  # Adjust if your file name is different
+from models import User, Project, Task  
 
-# Database URL (replace with your actual database details)
-DATABASE_URL = "sqlite:///./app.db"  # Example SQLite database
+# Database URL 
+DATABASE_URL = "sqlite:///./app.db"  
 
 # Create the engine and session
 engine = create_engine(DATABASE_URL)
@@ -215,8 +214,6 @@ def add_user(session):
         return None  
 
 
-
-# Example usage:
 if __name__ == "__main__": 
     try: 
         session = Session()

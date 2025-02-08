@@ -28,7 +28,6 @@ try:
     session.add_all([project1, project2, project3])
     session.commit()  # Commit the projects to get their IDs
 
-
     # Create Tasks (associated with projects)
     task1 = Task(title="Design mockups", description="Create wireframes and visual designs", project_id=project1.project_id, due_date=date(2024, 1, 15))
     task2 = Task(title="Implement backend", description="Develop the server-side logic", project_id=project1.project_id, due_date=date(2024, 1, 22))
@@ -47,3 +46,4 @@ except Exception as e:
 
 finally:
     session.close()
+
