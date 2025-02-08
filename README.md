@@ -50,7 +50,8 @@ This will start the interactive menu. Here's how to use it:
 
 1. Create User
 2. Login
-12. View Users
+12. Get user info by id
+13. View all users
 11. Exit
 
 **Logged-in options:**
@@ -64,4 +65,3 @@ This will start the interactive menu. Here's how to use it:
 9. Delete Project
 10. Update Task Status
 11. Exit
-
