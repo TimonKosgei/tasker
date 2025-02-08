@@ -108,7 +108,7 @@ def update_task_status(session):
         task = session.query(Task).filter_by(task_id=task_id).first()
 
         if task:
-            new_status = input("Enter the new status (e.g., Pending, In Progress, Completed): ")
+            new_status = input("Enter the new status(not-started,pending,completed): ")
             task.status = new_status
             session.commit()
             print(f"Task status updated to {new_status}")
@@ -148,7 +148,7 @@ def update_project_status(session):
         project = session.query(Project).filter_by(project_id=project_id).first()
 
         if project:
-            new_status = input("Enter the new status (e.g., In Progress, Completed): ")
+            new_status = input("Enter the new status (not-started,pending,completed): ")
             project.status = new_status  # Update the project's status
             session.commit()
             print(f"Project status updated to {new_status}")

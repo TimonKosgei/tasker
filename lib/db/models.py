@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import date
 
 # Base class for declarative models
 Base = declarative_base()
@@ -15,10 +16,18 @@ class User(Base):
     # Relationship to Project (one-to-many)
     projects = relationship("Project", back_populates="user")
 
-    def add_project(self, project):
-        self.projects.append(project)
+    @validates('email')
+    def validate_email(self, key, email):
+        if "@" not in email:
+            raise ValueError("Invalid email format")  # Or a custom exception
+        return email
 
-
+    @validates('name')
+    def validate_name(self, key, name):
+      if not name: #check if the name is empty or contains only spaces
+        raise ValueError("Name cannot be empty.")
+      return name
+    
 class Project(Base):
     __tablename__ = "projects"
 
@@ -33,9 +42,20 @@ class Project(Base):
 
     # Relationship to Task (one-to-many)
     tasks = relationship("Task", back_populates="project", cascade="all, delete")
+    #property methods
+    @validates('status')
+    def validate_status(self, key, status):
+        allowed_statuses = ["not-started", "pending", "completed"]  # Define allowed statuses
+        if status not in allowed_statuses:
+            raise ValueError(f"Invalid status: {status}. Allowed statuses are: {allowed_statuses}")
+        return status
 
-    def add_task(self, task):
-        self.tasks.append(task)
+    @validates('name')
+    def validate_name(self, key, name):
+      if not name: #check if the name is empty or contains only spaces
+        raise ValueError("Name cannot be empty.")
+      return name
+    
 
 
 class Task(Base):
@@ -50,3 +70,23 @@ class Task(Base):
 
     # Relationship to Project (many-to-one)
     project = relationship("Project", back_populates="tasks")
+
+    #property methods
+    @validates('status')
+    def validate_status(self, key, status):
+        allowed_statuses = ["not-started", "pending", "completed"]  # Define allowed statuses
+        if status not in allowed_statuses:
+            raise ValueError(f"Invalid status: {status}. Allowed statuses are: {allowed_statuses}")
+        return status
+    
+    @validates('title')
+    def validate_title(self, key, title):
+      if not title: #check if the name is empty or contains only spaces
+        raise ValueError("Title cannot be empty.")
+      return title
+
+    @validates('due_date')
+    def validate_due_date(self, key, due_date):
+        if due_date and due_date < date.today():
+            raise ValueError("Due date cannot be in the past.")
+        return due_date
